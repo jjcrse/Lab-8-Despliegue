@@ -1,12 +1,8 @@
 import MemePreview from "./MemePreview";
-
-interface MemeData {
-  url: string;
-  type: string;
-}
+import { getMemes, Meme } from "../services/Supabase/StoreService";
 
 class MemeShowcase extends HTMLElement {
-  private memeItems: MemeData[] = [];
+  private memeItems: Meme[] = [];
   private fetchIssue = false;
 
   constructor() {
@@ -19,18 +15,14 @@ class MemeShowcase extends HTMLElement {
     this.displayContent();
   }
 
-  public addMeme(newMeme: MemeData) {
+  public addMeme(newMeme: Meme) {
     this.memeItems.unshift(newMeme);
     this.displayContent();
   }
 
   private async loadContent() {
     try {
-      // Aquí deberías conectar con Supabase real
-      this.memeItems = [
-        { url: "https://example.com/meme1.jpg", type: "image/jpeg" },
-        { url: "https://example.com/video1.mp4", type: "video/mp4" }
-      ];
+      this.memeItems = await getMemes();
     } catch (e) {
       console.warn("Error cargando memes:", e);
       this.fetchIssue = true;
@@ -91,7 +83,7 @@ class MemeShowcase extends HTMLElement {
       if (grid) {
         this.memeItems.forEach((meme) => {
           const item = document.createElement("meme-preview") as MemePreview;
-          item.data = meme;
+          item.data = { url: meme.url, type: meme.type };
           grid.appendChild(item);
         });
       }
